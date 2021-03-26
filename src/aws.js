@@ -12,6 +12,7 @@ async function startEc2Instance(label, githubRegistrationToken) {
     `su -c "cd /home/ec2-user/actions-runner; ./config.sh --url https://github.com/${config.githubContext.owner}/${config.githubContext.repo} --token ${githubRegistrationToken} --labels ${label}; ./run.sh" -l "ec2-user"`,
   ];
 
+  // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/EC2.html#runInstances-property
   const params = {
     ImageId: config.input.ec2ImageId,
     InstanceType: config.input.ec2InstanceType,
@@ -22,6 +23,7 @@ async function startEc2Instance(label, githubRegistrationToken) {
     SecurityGroupIds: [config.input.securityGroupId],
     IamInstanceProfile: { Name: config.input.iamRoleName },
     TagSpecifications: config.tagSpecifications,
+    InstanceMarketOptions: { MarketType: 'spot' },
   };
 
   try {
