@@ -2,6 +2,34 @@ const AWS = require('aws-sdk');
 const core = require('@actions/core');
 const config = require('./config');
 
+async function getMostRecentImageIdByName(name) {
+  const ec2 = new AWS.EC2();
+
+  // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/EC2.html#describeImages-property
+  const params = {
+    Filters: [
+      {
+        Name: 'name',
+        Values: [name]
+      }
+    ],
+    Owners: ['self']
+  };
+
+  try {
+    const result = await ec2.describeImages(params).promise();
+    if (!result.Images || result.Images.length === 0) {
+      throw new Error('Image not found')
+    }
+    const imageId = result.Images.sort((a,b) => new Date(b.CreationDate) - new Date(a.CreationDate))[0].ImageId;
+    core.info(`Found AMI: ${imageId}`);
+    return imageId;
+  } catch (error) {
+    core.error('Unable to find an AMI with given name');
+    throw error;
+  }
+}
+
 async function startEc2Instance(label, githubRegistrationToken) {
   const ec2 = new AWS.EC2();
 
@@ -14,7 +42,7 @@ async function startEc2Instance(label, githubRegistrationToken) {
 
   // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/EC2.html#runInstances-property
   const params = {
-    ImageId: config.input.ec2ImageId,
+    ImageId: config.input.ec2ImageId || await getMostRecentImageIdByName(config.input.ec2ImageName),
     InstanceType: config.input.ec2InstanceType,
     MinCount: 1,
     MaxCount: 1,

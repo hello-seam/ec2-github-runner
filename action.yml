@@ -20,6 +20,11 @@ inputs:
       EC2 Image Id (AMI). The new runner will be launched from this image.
       This input is required if you use the 'start' mode.
     required: false
+  ec2-image-name:
+    description: >-
+      EC2 AMI Name Filter. If more than one result is returned, the most recent AMI will be used.
+      The new runner will be launched from this image.
+    required: false
   ec2-instance-type:
     description: >-
       EC2 Instance Type. 
