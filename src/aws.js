@@ -37,7 +37,7 @@ async function startEc2Instance(label, githubRegistrationToken) {
   // Docker and git are necessary for GitHub runner and should be pre-installed on the AMI.
   const userData = [
     '#!/bin/bash',
-    `su -c "cd /home/ec2-user/actions-runner; ./config.sh --url https://github.com/${config.githubContext.owner}/${config.githubContext.repo} --token ${githubRegistrationToken} --labels ${label}; ./run.sh" -l "ec2-user"`,
+    `su -c "cd /opt/actions-runner; ./config.sh --url https://github.com/${config.githubContext.owner}/${config.githubContext.repo} --token ${githubRegistrationToken} --labels ${label}; ./run.sh" -l "ubuntu"`,
   ];
 
   // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/EC2.html#runInstances-property
